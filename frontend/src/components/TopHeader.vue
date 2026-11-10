@@ -1,33 +1,21 @@
 <script setup lang="ts">
 import { Expand } from '@element-plus/icons-vue'
 
-defineProps<{
-  isSidebarOpen: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'toggle-sidebar'): void
-}>()
+defineProps<{ isSidebarOpen: boolean }>()
+const emit = defineEmits<{ (e: 'toggle-sidebar'): void }>()
 </script>
 
 <template>
   <el-header class="top-header-banner">
-    <div class="header-left-content">
+    <div class="header-content">
       <el-tooltip v-if="!isSidebarOpen" content="Open sidebar" placement="bottom">
-        <el-button
-          circle
-          text
-          class="expand-btn"
-          @click="emit('toggle-sidebar')"
-        >
+        <el-button circle text class="expand-btn" @click="emit('toggle-sidebar')">
           <el-icon><Expand /></el-icon>
         </el-button>
       </el-tooltip>
 
-      <div class="header-title-box">
-        <el-tag type="success" effect="dark" round class="status-badge" />
-        <h1 class="header-main-title">AI Q&A System</h1>
-      </div>
+      <el-tag type="success" effect="dark" round class="status-badge" />
+      <h1 class="header-main-title">AI Q&A System</h1>
     </div>
   </el-header>
 </template>
@@ -43,16 +31,10 @@ const emit = defineEmits<{
   box-shadow: 0 1px 4px var(--shadow);
 }
 
-.header-left-content {
+.header-content {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.header-title-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .status-badge {
@@ -65,9 +47,7 @@ const emit = defineEmits<{
 .header-main-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-primary);
   margin: 0;
-  letter-spacing: -0.2px;
 }
 
 .expand-btn {

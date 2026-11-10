@@ -43,11 +43,9 @@ watch(
           class="message-row"
           :class="msg.role"
         >
-          <!-- Role Avatar -->
           <el-avatar
             :size="32"
             :icon="msg.role === 'user' ? UserFilled : Service"
-            class="message-avatar"
             :class="msg.role"
           />
 
@@ -56,18 +54,13 @@ watch(
               {{ msg.role === 'user' ? 'You' : 'AI Assistant' }}
             </div>
             
-            <!-- Element Plus Card Bubble -->
             <el-card shadow="never" class="bubble-card" :class="msg.role">
               <template v-if="msg.role === 'user'">
                 {{ msg.rawText }}
               </template>
 
               <template v-else>
-                <span
-                  v-for="(word, wIdx) in msg.words"
-                  :key="wIdx"
-                  class="word-fade"
-                >
+                <span v-for="(word, wIdx) in msg.words" :key="wIdx" class="word-fade">
                   {{ word }}&nbsp;
                 </span>
               </template>
@@ -113,20 +106,14 @@ watch(
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
-  width: 100%;
 }
 
 .message-row.user {
   flex-direction: row-reverse;
 }
 
-.message-avatar.user {
-  background-color: #409eff;
-}
-
-.message-avatar.assistant {
-  background-color: #67c23a;
-}
+.el-avatar.user { background-color: #409eff; }
+.el-avatar.assistant { background-color: #67c23a; }
 
 .message-body {
   max-width: 75%;
@@ -134,13 +121,8 @@ watch(
   flex-direction: column;
 }
 
-.message-row.user .message-body {
-  align-items: flex-end;
-}
-
-.message-row.assistant .message-body {
-  align-items: flex-start;
-}
+.message-row.user .message-body { align-items: flex-end; }
+.message-row.assistant .message-body { align-items: flex-start; }
 
 .author-name {
   font-size: 12px;

@@ -1,11 +1,8 @@
 .app-layout {
-  --bg-main: radial-gradient(circle at 50% 50%, #f0f6ff 0%, #e8f1fd 40%, #f8fafc 100%);
   --sidebar-bg: #f0f4f9;
   --sidebar-border: #e1e3e1;
   --text-primary: #1f1f1f;
   --text-secondary: #444746;
-  --btn-bg: #dde3ea;
-  --btn-hover: #d3dbdf;
   --search-bg: #e4ebf3;
   --item-hover: #e1e5ea;
   --item-active-bg: #c2e7ff;
@@ -24,7 +21,7 @@
   width: 100vw;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--text-primary);
-  background: var(--bg-main);
+  background: radial-gradient(circle at 50% 50%, #f0f6ff 0%, #e8f1fd 40%, #f8fafc 100%);
   display: flex;
   overflow: hidden;
 }
