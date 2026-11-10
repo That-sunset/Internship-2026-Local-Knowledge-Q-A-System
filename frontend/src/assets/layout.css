@@ -1,0 +1,38 @@
+.app-layout {
+  --bg-main: radial-gradient(circle at 50% 50%, #f0f6ff 0%, #e8f1fd 40%, #f8fafc 100%);
+  --sidebar-bg: #f0f4f9;
+  --sidebar-border: #e1e3e1;
+  --text-primary: #1f1f1f;
+  --text-secondary: #444746;
+  --btn-bg: #dde3ea;
+  --btn-hover: #d3dbdf;
+  --search-bg: #e4ebf3;
+  --item-hover: #e1e5ea;
+  --item-active-bg: #c2e7ff;
+  --item-active-text: #001d35;
+  --card-bg: #ffffff;
+  --card-border: #e1e3e1;
+  --header-bg: #ffffff;
+  --header-border: #e1e3e1;
+  --user-bubble-bg: #c2e7ff;
+  --user-bubble-text: #001d35;
+  --assistant-bubble-bg: #ffffff;
+  --assistant-bubble-text: #1f1f1f;
+  --shadow: rgba(0, 0, 0, 0.04);
+
+  height: 100vh;
+  width: 100vw;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-main);
+  display: flex;
+  overflow: hidden;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+}
