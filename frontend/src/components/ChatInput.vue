@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Promotion } from '@element-plus/icons-vue'
+import SubmitButton from './SubmitButton.vue'
 
 const props = defineProps<{
   placeholder?: string
@@ -13,7 +13,10 @@ const emit = defineEmits<{
 
 const inputMessage = ref('')
 
-function handleSend() {
+function handleSend(event?: KeyboardEvent) {
+  if (event && event.shiftKey) return
+  if (event) event.preventDefault()
+
   if (!inputMessage.value.trim() || props.disabled) return
   emit('send', inputMessage.value)
   inputMessage.value = ''
@@ -21,44 +24,41 @@ function handleSend() {
 </script>
 
 <template>
-  <el-input
-    v-model="inputMessage"
-    :placeholder="placeholder || 'Ask anything...'"
-    class="pill-input"
-    :disabled="disabled"
-    @keydown.enter="handleSend"
-  >
-    <template #suffix>
-      <el-tooltip content="Send message" placement="top" :disabled="!inputMessage.trim()">
-        <el-button
-          circle
-          type="primary"
-          class="send-btn"
-          :disabled="!inputMessage.trim() || disabled"
-          @click="handleSend"
-        >
-          <el-icon><Promotion /></el-icon>
-        </el-button>
-      </el-tooltip>
-    </template>
-  </el-input>
+  <div class="chat-input-wrapper">
+    <el-input
+      v-model="inputMessage"
+      style="width: 100%"
+      :autosize="{ minRows: 1, maxRows: 4 }"
+      type="textarea"
+      :placeholder="placeholder || 'Ask anything...'"
+      :disabled="disabled"
+      resize="none"
+      class="chat-textarea"
+      @keydown.enter="handleSend"
+    />
+    <SubmitButton
+      :disabled="!inputMessage.trim() || disabled"
+      @click="handleSend"
+    />
+  </div>
 </template>
 
 <style scoped>
-:deep(.pill-input .el-input__wrapper) {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 28px;
-  box-shadow: 0 4px 16px var(--shadow) !important;
-  padding: 6px 12px 6px 18px;
+.chat-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
 }
 
-:deep(.pill-input .el-input__inner) {
+:deep(.chat-textarea .el-textarea__inner) {
+  border-radius: 20px;
+  padding: 10px 48px 10px 16px;
   font-size: 15px;
+  line-height: 1.5;
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
   color: var(--text-primary);
-}
-
-.send-btn {
-  border: none;
+  box-shadow: 0 4px 16px var(--shadow);
 }
 </style>
