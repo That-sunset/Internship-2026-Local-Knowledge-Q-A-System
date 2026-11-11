@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar.vue'
 import TopHeader from './components/TopHeader.vue'
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ChatWorkspace from './components/ChatWorkspace.vue'
+import BackendButton from './components/BackendButton.vue'
 
 interface Session {
   id: number
@@ -84,6 +85,9 @@ function handleSend(userText: string) {
     />
 
     <main class="main-area">
+      <!-- Placed inside main for proper visibility -->
+      <BackendButton />
+
       <TopHeader
         :is-sidebar-open="isSidebarOpen"
         @toggle-sidebar="isSidebarOpen = !isSidebarOpen"
@@ -104,3 +108,15 @@ function handleSend(userText: string) {
     </main>
   </div>
 </template>
+
+<style scoped>
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-area {
+  position: relative;
+  flex: 1;
+}
+</style>
