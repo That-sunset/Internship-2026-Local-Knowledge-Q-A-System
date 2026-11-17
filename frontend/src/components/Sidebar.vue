@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Search, Plus, Fold, ChatDotRound, Close } from '@element-plus/icons-vue'
+import { Getrecord, Getchat, Deletebyid } from '../Api/record'
 
 interface Session {
   id: number
@@ -15,7 +16,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:isOpen', value: boolean): void
-  (e: 'select-session', id: number): void
+  (e: 'loaded-sessions', sessions: Session[]): void
+  (e: 'select-session', payload: { id: number; content: string }): void
   (e: 'new-session'): void
   (e: 'delete-session', id: number): void
 }>()
@@ -33,6 +35,44 @@ const filteredSessions = computed(() => {
 function toggleSearch() {
   isSearching.value = !isSearching.value
   if (!isSearching.value) searchQuery.value = ''
+}
+
+// 1. GET all records when sidebar mounts
+onMounted(async () => {
+  try {
+    const data = await Getrecord()
+    if (Array.isArray(data)) {
+      const mapped = data.map((item: any) => ({
+        id: item.id,
+        title: item.content || item.text || `Chat ${item.id}`
+      }))
+      emit('loaded-sessions', mapped)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+})
+
+// 2. GET single chat when clicking a sidebar item
+async function handleSelect(id: number) {
+  try {
+    const data = await Getchat(id)
+    const content = data?.content || data?.text || ''
+    emit('select-session', { id, content })
+  } catch (err) {
+    console.error(err)
+    emit('select-session', { id, content: '' })
+  }
+}
+
+// 3. DELETE record when clicking the hover X
+async function handleDelete(id: number) {
+  try {
+    await Deletebyid(id)
+    emit('delete-session', id)
+  } catch (err) {
+    console.error(err)
+  }
 }
 </script>
 
@@ -76,13 +116,13 @@ function toggleSearch() {
           :key="session.id"
           class="history-item"
           :class="{ active: session.id === currentId }"
-          @click="emit('select-session', session.id)"
+          @click="handleSelect(session.id)"
         >
           <el-icon class="chat-icon"><ChatDotRound /></el-icon>
           <span class="session-title">{{ session.title }}</span>
           <el-icon
             class="delete-icon"
-            @click.stop="emit('delete-session', session.id)"
+            @click.stop="handleDelete(session.id)"
           >
             <Close />
           </el-icon>
