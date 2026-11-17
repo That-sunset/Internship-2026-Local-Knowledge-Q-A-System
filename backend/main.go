@@ -1,17 +1,15 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Create a Gin router with default middleware (logger and recovery)
 	r := gin.Default()
 
-	// Enable CORS so Vue browser requests are not blocked
+	// Enable CORS for Vue
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -23,17 +21,14 @@ func main() {
 		c.Next()
 	})
 
-	// Define a simple GET endpoint
 	r.GET("/api/info", func(c *gin.Context) {
-		// Return JSON response
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
+		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
-	// Start server on port 8080 (default)
-	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
-	if err := r.Run(); err != nil {
-		log.Fatalf("failed to run server: %v", err)
-	}
+	r.GET("/api/records", getHandler)
+	r.GET("/api/chat/:id", getChatHandler)
+	r.POST("/api/records", postHandler)
+	r.DELETE("/api/records/:id", deleteHandler)
+
+	r.Run()
 }

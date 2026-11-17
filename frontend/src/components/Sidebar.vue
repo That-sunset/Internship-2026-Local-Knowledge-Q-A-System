@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Search, Plus, Fold, ChatDotRound } from '@element-plus/icons-vue'
+import { Search, Plus, Fold, ChatDotRound, Close } from '@element-plus/icons-vue'
 
 interface Session {
   id: number
@@ -17,6 +17,7 @@ const emit = defineEmits<{
   (e: 'update:isOpen', value: boolean): void
   (e: 'select-session', id: number): void
   (e: 'new-session'): void
+  (e: 'delete-session', id: number): void
 }>()
 
 const searchQuery = ref('')
@@ -77,8 +78,14 @@ function toggleSearch() {
           :class="{ active: session.id === currentId }"
           @click="emit('select-session', session.id)"
         >
-          <el-icon><ChatDotRound /></el-icon>
-          <span>{{ session.title }}</span>
+          <el-icon class="chat-icon"><ChatDotRound /></el-icon>
+          <span class="session-title">{{ session.title }}</span>
+          <el-icon
+            class="delete-icon"
+            @click.stop="emit('delete-session', session.id)"
+          >
+            <Close />
+          </el-icon>
         </div>
       </el-scrollbar>
     </div>
@@ -197,5 +204,31 @@ function toggleSearch() {
   background-color: var(--item-active-bg);
   color: var(--item-active-text);
   font-weight: 500;
+}
+
+.chat-icon {
+  flex-shrink: 0;
+}
+
+.session-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delete-icon {
+  opacity: 0;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 50%;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.history-item:hover .delete-icon {
+  opacity: 1;
+}
+
+.delete-icon:hover {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 </style>

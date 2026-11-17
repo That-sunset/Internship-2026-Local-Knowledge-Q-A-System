@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Connection, Check, Close } from '@element-plus/icons-vue'
-import { api } from '../api'
+import { api } from '../Api/api'
 
 const connected = ref(false)
 const loading = ref(false)

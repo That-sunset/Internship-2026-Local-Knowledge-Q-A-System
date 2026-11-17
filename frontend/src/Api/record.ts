@@ -1,28 +1,29 @@
 import { api } from './api'
 
-export function Getchat(recordId: string | number) {
-  return api.get(`/api/chat/${recordId}`).then(function (data) {
-    console.log(data)
-    return data
-  })
-}
-
 export function Getrecord() {
-  return api.get('/api/record').then(function (data) {
+  return api.get('/api/records').then(function (data) {
     console.log(data)
     return data
   })
 }
 
 export function Post(payload: { text: string }) {
-  return api.post('/api/post', payload).then(function (data) {
+  return api.post('/api/records', payload).then(function (data) {
     console.log(data)
     return data
   })
 }
 
 export function Deletebyid(recordId: string | number) {
-  return api.delete(`/api/record/${recordId}`).then(function (data) {
+  return api.delete(`/api/records/${recordId}`).then(function (data) {
+    console.log(data)
+    return data
+  })
+}
+
+// Only keep this if you add r.GET("/api/chat/:id", ...) to main.go
+export function Getchat(recordId: string | number) {
+  return api.get(`/api/chat/${recordId}`).then(function (data) {
     console.log(data)
     return data
   })
