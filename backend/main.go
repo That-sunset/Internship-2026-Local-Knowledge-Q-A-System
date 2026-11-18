@@ -3,10 +3,14 @@ package main
 import (
 	"net/http"
 
+	"internship-2026/db"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	db.InitDB()
+
 	r := gin.Default()
 
 	// Enable CORS for Vue

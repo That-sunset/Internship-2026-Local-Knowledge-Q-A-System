@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"internship-2026/db"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,10 +19,12 @@ func getHandler(c *gin.Context) {
 
 func getChatHandler(c *gin.Context) {
 	id := c.Param("id")
-	c.JSON(http.StatusOK, gin.H{
-		"id":      id,
-		"content": "chat content",
-	})
+	var record db.Record
+	if err := db.DB.First(&record, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
+		return
+	}
+	c.JSON(http.StatusOK, record)
 }
 
 func postHandler(c *gin.Context) {
