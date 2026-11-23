@@ -2,19 +2,12 @@ package db
 
 import (
 	"log"
-	"time"
+
+	"internship-2026/model"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
-
-type Record struct {
-	ID         uint           `gorm:"primaryKey;autoIncrement" json:"id"`
-	Content    string         `gorm:"not null" json:"content"`
-	CreateTime time.Time      `gorm:"column:createtime;autoCreateTime" json:"createtime"`
-	UpdateTime *time.Time     `gorm:"column:updatetime;default:null" json:"updatetime"`
-	DeleteTime gorm.DeletedAt `gorm:"column:deletetime;index" json:"deletetime"`
-}
 
 var DB *gorm.DB
 
@@ -23,6 +16,13 @@ func InitDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.AutoMigrate(&Record{})
+	if err := db.AutoMigrate(&model.Record{}, &model.Chat{}); err != nil {
+		log.Fatal(err)
+	}
+	if db.Migrator().HasColumn(&model.Record{}, "content") {
+		if err := db.Migrator().DropColumn(&model.Record{}, "content"); err != nil {
+			log.Fatal(err)
+		}
+	}
 	DB = db
 }

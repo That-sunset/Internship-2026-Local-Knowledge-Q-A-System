@@ -8,7 +8,7 @@ export function Getrecord() {
 }
 
 export function Post(payload: { text: string }) {
-  return api.post('/api/records', payload).then(function (data) {
+  return api.post('/api/records', { content: payload.text }).then(function (data) {
     console.log(data)
     return data
   })

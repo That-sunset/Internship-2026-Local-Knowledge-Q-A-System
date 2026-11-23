@@ -31,6 +31,7 @@ func main() {
 
 	r.GET("/api/records", getHandler)
 	r.GET("/api/chat/:id", getChatHandler)
+	r.POST("/api/chat/:id", postChatHandler)
 	r.POST("/api/records", postHandler)
 	r.DELETE("/api/records/:id", deleteHandler)
 
