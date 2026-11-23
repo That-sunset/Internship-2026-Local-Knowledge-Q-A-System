@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"time"
 
 	"internship-2026/model"
@@ -22,6 +26,16 @@ type ChatData struct {
 	CreateTime time.Time `json:"createtime"`
 }
 
+type ollamaGenerateRequest struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+	Stream bool   `json:"stream"`
+}
+
+type ollamaGenerateResponse struct {
+	Response string `json:"response"`
+}
+
 func toRecordData(r model.Record) RecordData {
 	return RecordData{
 		ID:         r.ID,
@@ -37,6 +51,45 @@ func toChatData(c model.Chat) ChatData {
 		Source:     c.Source,
 		CreateTime: c.CreateTime,
 	}
+}
+
+// --- Ollama AI Helper ---
+
+func askModel(ctx context.Context, prompt string) (string, error) {
+	reqPayload := ollamaGenerateRequest{
+		Model:  "qwen2.5:1.5b",
+		Prompt: prompt,
+		Stream: false,
+	}
+
+	jsonBytes, err := json.Marshal(reqPayload)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://127.0.0.1:11434/api/generate", bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 60 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to connect to Ollama: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("ollama returned status %d", resp.StatusCode)
+	}
+
+	var result ollamaGenerateResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
+
+	return result.Response, nil
 }
 
 // --- Record (Session) Services ---
@@ -99,4 +152,26 @@ func createChatService(ctx context.Context, sessionID uint, content string, sour
 		return ChatData{}, err
 	}
 	return toChatData(chat), nil
+}
+
+// askAndSaveChatService saves the user prompt, queries Ollama, saves the model reply, and returns the model reply.
+func askAndSaveChatService(ctx context.Context, sessionID uint, prompt string) (ChatData, error) {
+	// 1. Insert "user message" into SQLite
+	if _, err := createChatService(ctx, sessionID, prompt, "user"); err != nil {
+		return ChatData{}, err
+	}
+
+	// 2. Call askModel(prompt) on Ollama
+	answer, err := askModel(ctx, prompt)
+	if err != nil {
+		return ChatData{}, err
+	}
+
+	// 3. Insert "model reply" into SQLite
+	modelChat, err := createChatService(ctx, sessionID, answer, "model")
+	if err != nil {
+		return ChatData{}, err
+	}
+
+	return modelChat, nil
 }

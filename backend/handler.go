@@ -47,26 +47,33 @@ func postChatHandler(c *gin.Context) {
 	}
 
 	var body struct {
-		Content string `json:"content" binding:"required"`
-		Source  string `json:"source" binding:"required"`
+		Prompt  string `json:"prompt"`
+		Content string `json:"content"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if body.Source != "user" && body.Source != "model" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'user' or 'model'"})
+
+	prompt := body.Prompt
+	if prompt == "" {
+		prompt = body.Content
+	}
+	if prompt == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "prompt is required"})
 		return
 	}
 
-	chat, err := createChatService(c.Request.Context(), uint(sessionID), body.Content, body.Source)
+	modelChat, err := askAndSaveChatService(c.Request.Context(), uint(sessionID), prompt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "created",
-		"data":    chat,
+		"answer":  modelChat.Content,
+		"data":    modelChat,
 	})
 }
 

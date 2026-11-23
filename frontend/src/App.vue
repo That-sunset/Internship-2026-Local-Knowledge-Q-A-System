@@ -5,7 +5,8 @@ import TopHeader from './components/TopHeader.vue'
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ChatWorkspace from './components/ChatWorkspace.vue'
 import BackendButton from './components/BackendButton.vue'
-import { Postrecord, Postchat, type ChatRecord } from './Api/record'
+import { Postrecord, Postchat } from './Api/record'
+import type { ChatRecord } from './Api/record'
 
 interface Session {
   id: number
@@ -80,22 +81,20 @@ async function handleSend(userText: string) {
 
     const sessionId = currentId.value!
 
-    // 2. Display & persist the user message
+    // 2. Display the user message immediately
     messages.value.push({
       role: 'user',
       words: [],
       rawText: userText
     })
-    await Postchat(sessionId, { content: userText, source: 'user' })
 
-    // 3. Generate, persist, and stream the model response
+    // 3. Send { prompt } -> backend inserts user + model rows -> returns { answer }
     isGenerating.value = true
-    const mockResponse = `Thank you for reaching out! Based on your query regarding "${userText}", here is the relevant information retrieved from our knowledge base. Please let me know if you need further assistance.`
-    await Postchat(sessionId, { content: mockResponse, source: 'model' })
+    const res = await Postchat(sessionId, { prompt: userText })
+    const aiAnswer = res.answer || res.data?.content || 'No response from model.'
 
-    setTimeout(() => {
-      streamWordsEffect(mockResponse)
-    }, 300)
+    // 4. Stream the real AI answer in the UI
+    streamWordsEffect(aiAnswer)
   } catch (err) {
     console.error('Failed to send message:', err)
     isGenerating.value = false

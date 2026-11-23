@@ -34,7 +34,7 @@ export function Getchat(sessionId: string | number): Promise<ChatRecord[]> {
 
 export function Postchat(
   sessionId: string | number,
-  payload: { content: string; source: 'user' | 'model' }
+  payload: { prompt: string }
 ) {
   return api.post(`/api/chat/${sessionId}`, payload).then(function (data) {
     return data
