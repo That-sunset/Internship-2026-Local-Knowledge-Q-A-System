@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SubmitButton from './SubmitButton.vue'
-import { Post } from '../Api/record.ts'
 
 const props = defineProps<{
   placeholder?: string
@@ -14,7 +13,7 @@ const emit = defineEmits<{
 
 const inputMessage = ref('')
 
-async function handleSend(event?: KeyboardEvent) {
+function handleSend(event?: KeyboardEvent) {
   if (event && event.shiftKey) return
   if (event) event.preventDefault()
 
@@ -22,12 +21,6 @@ async function handleSend(event?: KeyboardEvent) {
 
   const text = inputMessage.value
   inputMessage.value = ''
-
-  try {
-    await Post({ text })
-  } catch (err) {
-    console.error(err)
-  }
 
   emit('send', text)
 }

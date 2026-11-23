@@ -1,30 +1,42 @@
 import { api } from './api'
 
+export interface ChatRecord {
+  id: number
+  session_id: number
+  content: string
+  source: 'user' | 'model'
+  createtime: string
+}
+
 export function Getrecord() {
   return api.get('/api/records').then(function (data) {
-    console.log(data)
     return data
   })
 }
 
-export function Post(payload: { text: string }) {
-  return api.post('/api/records', { content: payload.text }).then(function (data) {
-    console.log(data)
+export function Postrecord() {
+  return api.post('/api/records', {}).then(function (data) {
     return data
   })
 }
 
 export function Deletebyid(recordId: string | number) {
   return api.delete(`/api/records/${recordId}`).then(function (data) {
-    console.log(data)
     return data
   })
 }
 
-// Only keep this if you add r.GET("/api/chat/:id", ...) to main.go
-export function Getchat(recordId: string | number) {
-  return api.get(`/api/chat/${recordId}`).then(function (data) {
-    console.log(data)
+export function Getchat(sessionId: string | number): Promise<ChatRecord[]> {
+  return api.get(`/api/chat/${sessionId}`).then(function (data) {
+    return data
+  })
+}
+
+export function Postchat(
+  sessionId: string | number,
+  payload: { content: string; source: 'user' | 'model' }
+) {
+  return api.post(`/api/chat/${sessionId}`, payload).then(function (data) {
     return data
   })
 }

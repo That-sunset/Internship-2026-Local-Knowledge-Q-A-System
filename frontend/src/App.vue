@@ -5,6 +5,7 @@ import TopHeader from './components/TopHeader.vue'
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ChatWorkspace from './components/ChatWorkspace.vue'
 import BackendButton from './components/BackendButton.vue'
+import { Postrecord, Postchat, type ChatRecord } from './Api/record'
 
 interface Session {
   id: number
@@ -24,11 +25,13 @@ const sessions = ref<Session[]>([])
 const currentId = ref<number | null>(null)
 const messages = ref<Message[]>([])
 
-function selectSession(payload: { id: number; content: string }) {
+function selectSession(payload: { id: number; chats: ChatRecord[] }) {
   currentId.value = payload.id
-  messages.value = payload.content
-    ? [{ role: 'assistant', words: payload.content.split(' ') }]
-    : []
+  messages.value = payload.chats.map(chat =>
+    chat.source === 'user'
+      ? { role: 'user', words: [], rawText: chat.content }
+      : { role: 'assistant', words: chat.content.split(' ') }
+  )
 }
 
 function newSession() {
@@ -64,26 +67,39 @@ function streamWordsEffect(fullText: string) {
   }, 40)
 }
 
-function handleSend(userText: string) {
-  if (currentId.value === null) {
-    const id = Date.now()
-    const title = userText.slice(0, 30)
-    sessions.value.unshift({ id, title })
-    currentId.value = id
-  }
+async function handleSend(userText: string) {
+  try {
+    // 1. Create a real SQLite session if this is a brand-new chat
+    if (currentId.value === null) {
+      const res = await Postrecord()
+      const newId = res.data.id
+      const title = userText.slice(0, 30)
+      sessions.value.unshift({ id: newId, title })
+      currentId.value = newId
+    }
 
-  messages.value.push({
-    role: 'user',
-    words: [],
-    rawText: userText
-  })
+    const sessionId = currentId.value!
 
-  isGenerating.value = true
+    // 2. Display & persist the user message
+    messages.value.push({
+      role: 'user',
+      words: [],
+      rawText: userText
+    })
+    await Postchat(sessionId, { content: userText, source: 'user' })
 
-  setTimeout(() => {
+    // 3. Generate, persist, and stream the model response
+    isGenerating.value = true
     const mockResponse = `Thank you for reaching out! Based on your query regarding "${userText}", here is the relevant information retrieved from our knowledge base. Please let me know if you need further assistance.`
-    streamWordsEffect(mockResponse)
-  }, 300)
+    await Postchat(sessionId, { content: mockResponse, source: 'model' })
+
+    setTimeout(() => {
+      streamWordsEffect(mockResponse)
+    }, 300)
+  } catch (err) {
+    console.error('Failed to send message:', err)
+    isGenerating.value = false
+  }
 }
 </script>
 

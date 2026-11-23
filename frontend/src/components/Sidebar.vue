@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Search, Plus, Fold, ChatDotRound, Close } from '@element-plus/icons-vue'
-import { Getrecord, Getchat, Deletebyid } from '../Api/record'
+import { Getrecord, Getchat, Deletebyid, type ChatRecord } from '../Api/record'
 
 interface Session {
   id: number
@@ -17,7 +17,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:isOpen', value: boolean): void
   (e: 'loaded-sessions', sessions: Session[]): void
-  (e: 'select-session', payload: { id: number; content: string }): void
+  (e: 'select-session', payload: { id: number; chats: ChatRecord[] }): void
   (e: 'new-session'): void
   (e: 'delete-session', id: number): void
 }>()
@@ -37,14 +37,14 @@ function toggleSearch() {
   if (!isSearching.value) searchQuery.value = ''
 }
 
-// 1. GET all records when sidebar mounts
+// 1. GET all session records when sidebar mounts
 onMounted(async () => {
   try {
     const data = await Getrecord()
     if (Array.isArray(data)) {
       const mapped = data.map((item: any) => ({
         id: item.id,
-        title: item.content || item.text || `Chat ${item.id}`
+        title: `Chat ${item.id}`
       }))
       emit('loaded-sessions', mapped)
     }
@@ -53,15 +53,14 @@ onMounted(async () => {
   }
 })
 
-// 2. GET single chat when clicking a sidebar item
+// 2. GET all messages for a session when clicking a sidebar item
 async function handleSelect(id: number) {
   try {
-    const data = await Getchat(id)
-    const content = data?.content || data?.text || ''
-    emit('select-session', { id, content })
+    const chats = await Getchat(id)
+    emit('select-session', { id, chats: Array.isArray(chats) ? chats : [] })
   } catch (err) {
     console.error(err)
-    emit('select-session', { id, content: '' })
+    emit('select-session', { id, chats: [] })
   }
 }
 

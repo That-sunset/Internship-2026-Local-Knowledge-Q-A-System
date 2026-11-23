@@ -7,13 +7,13 @@ Base URL: `http://127.0.0.1:8080`
 ## GET
 
 ### Getchat
-Retrieves chat data from `record.db` using `recordid`.
+Retrieves all chat messages from `chat.db` (`chats` table) belonging to a session using `id` (`session_id`).
 
-* **Endpoint:** `GET /api/chat/:recordid`
-* **Database:** `record.db`
-* **Frontend Usage:**
+- **Endpoint:** `GET /api/chat/:id`
+- **Database:** `chat.db`
+- **Frontend Usage:**
   ```typescript
-  api.get(`/api/chat/${recordId}`).then(function (data) {
+  api.get(`/api/chat/${sessionId}`).then(function (data) {
     console.log(data)
   })
   ```
@@ -21,13 +21,13 @@ Retrieves chat data from `record.db` using `recordid`.
 ---
 
 ### Getrecord
-Retrieves record data from `record.db`.
+Retrieves all session records from `chat.db` (`records` table).
 
-* **Endpoint:** `GET /api/record`
-* **Database:** `record.db`
-* **Frontend Usage:**
+- **Endpoint:** `GET /api/records`
+- **Database:** `chat.db`
+- **Frontend Usage:**
   ```typescript
-  api.get(`/api/record/`).then(function (data) {
+  api.get('/api/records').then(function (data) {
     console.log(data)
   })
   ```
@@ -36,21 +36,40 @@ Retrieves record data from `record.db`.
 
 ## POST
 
-### Post
-Sends new data to `record.db`.
+### Postrecord
+Creates a new chat session in `chat.db` (`records` table).
 
-* **Endpoint:** `POST /api/post`
-* **Database:** `record.db`
-* **Frontend Usage:**
+- **Endpoint:** `POST /api/records`
+- **Database:** `chat.db`
+- **Frontend Usage:**
   ```typescript
-  api.post('/api/post', payload).then(function (data) {
+  api.post('/api/records', {}).then(function (data) {
     console.log(data)
   })
   ```
-* **Request Body:**
+- **Request Body:**
+  ```json
+  {}
+  ```
+
+---
+
+### Postchat
+Adds a new message (`user` or `model`) to a session in `chat.db` (`chats` table) using `id` (`session_id`).
+
+- **Endpoint:** `POST /api/chat/:id`
+- **Database:** `chat.db`
+- **Frontend Usage:**
+  ```typescript
+  api.post(`/api/chat/${sessionId}`, payload).then(function (data) {
+    console.log(data)
+  })
+  ```
+- **Request Body:**
   ```json
   {
-    "text": "<text>"
+    "content": "<text>",
+    "source": "user"
   }
   ```
 
@@ -59,13 +78,13 @@ Sends new data to `record.db`.
 ## DELETE
 
 ### Deletebyid
-Finds and deletes a record in `record.db` using `recordid`.
+Finds and deletes a session record in `chat.db` (`records` table) using `id`.
 
-* **Endpoint:** `DELETE /api/record/:recordid`
-* **Database:** `record.db`
-* **Frontend Usage:**
+- **Endpoint:** `DELETE /api/records/:id`
+- **Database:** `chat.db`
+- **Frontend Usage:**
   ```typescript
-  api.delete(`/api/record/${recordId}`).then(function (data) {
+  api.delete(`/api/records/${recordId}`).then(function (data) {
     console.log(data)
   })
   ```
