@@ -1,0 +1,11 @@
+Internship Project Overview
+The Internship-2026 AI Q&A System is a full-stack web application built with a Go (Gin and GORM) backend, a SQLite database (chat.db), and a Vue 3 TypeScript frontend styled with Element Plus. It connects locally to Ollama running at http://127.0.0.1:11434.
+
+Database Architecture
+Chat history is stored in SQLite using a split-table design. The records table tracks individual chat sessions with an auto-incrementing ID and timestamps, while the chats table stores every user prompt and model reply linked by session_id.
+
+AI Models and Vector Retrieval
+Text generation is powered by the local qwen2.5:1.5b model in Ollama. Document embeddings are generated using nomic-embed-text and stored in an embedded chromem-go vector database so the assistant can retrieve relevant document chunks before answering questions.
+
+Supported Upload Formats
+The Vector Database upload modal accepts .txt and .csv files. Plain text files are read and split into chunks directly, while CSV files convert each row into a descriptive sentence before chunking and embedding.

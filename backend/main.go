@@ -10,6 +10,7 @@ import (
 
 func main() {
 	db.InitDB()
+	InitVectorDB()
 
 	r := gin.Default()
 
@@ -34,6 +35,7 @@ func main() {
 	r.POST("/api/chat/:id", postChatHandler)
 	r.POST("/api/records", postHandler)
 	r.DELETE("/api/records/:id", deleteHandler)
+	r.POST("/api/vector/upload", uploadVectorHandler)
 
 	r.Run()
 }

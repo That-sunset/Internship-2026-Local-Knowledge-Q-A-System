@@ -4,7 +4,6 @@ import Sidebar from './components/Sidebar.vue'
 import TopHeader from './components/TopHeader.vue'
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ChatWorkspace from './components/ChatWorkspace.vue'
-import BackendButton from './components/BackendButton.vue'
 import { Postrecord, Postchat } from './Api/record'
 import type { ChatRecord } from './Api/record'
 
@@ -115,9 +114,6 @@ async function handleSend(userText: string) {
     />
 
     <main class="main-area">
-      <!-- Placed inside main for proper visibility -->
-      <BackendButton />
-
       <TopHeader
         :is-sidebar-open="isSidebarOpen"
         @toggle-sidebar="isSidebarOpen = !isSidebarOpen"

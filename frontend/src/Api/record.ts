@@ -40,3 +40,11 @@ export function Postchat(
     return data
   })
 }
+
+export function UploadVectorFiles(files: File[]) {
+  const formData = new FormData()
+  for (const file of files) {
+    formData.append('files', file)
+  }
+  return api.upload('/api/vector/upload', formData)
+}

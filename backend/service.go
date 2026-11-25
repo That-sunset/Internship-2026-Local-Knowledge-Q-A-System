@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"internship-2026/model"
@@ -94,14 +95,6 @@ func askModel(ctx context.Context, prompt string) (string, error) {
 
 // --- Record (Session) Services ---
 
-func getChatService(ctx context.Context, id string) (RecordData, error) {
-	record, err := getChatManager(ctx, id)
-	if err != nil {
-		return RecordData{}, err
-	}
-	return toRecordData(record), nil
-}
-
 func getRecordsService(ctx context.Context) ([]RecordData, error) {
 	records, err := getRecordsManager(ctx)
 	if err != nil {
@@ -154,20 +147,30 @@ func createChatService(ctx context.Context, sessionID uint, content string, sour
 	return toChatData(chat), nil
 }
 
-// askAndSaveChatService saves the user prompt, queries Ollama, saves the model reply, and returns the model reply.
+// askAndSaveChatService saves the user prompt, retrieves RAG context from chromem-go, queries Ollama, and saves the reply.
 func askAndSaveChatService(ctx context.Context, sessionID uint, prompt string) (ChatData, error) {
-	// 1. Insert "user message" into SQLite
+	// 1. Insert clean "user message" into SQLite
 	if _, err := createChatService(ctx, sessionID, prompt, "user"); err != nil {
 		return ChatData{}, err
 	}
 
-	// 2. Call askModel(prompt) on Ollama
-	answer, err := askModel(ctx, prompt)
+	// 2. Retrieve relevant context from chromem-go (if documents exist)
+	finalPrompt := prompt
+	if contexts, err := queryVectorContext(ctx, prompt, 3); err == nil && len(contexts) > 0 {
+		finalPrompt = fmt.Sprintf(
+			"Use the following reference context from the knowledge base to help answer the user's question accurately.\n\nContext:\n%s\n\nUser Question: %s",
+			strings.Join(contexts, "\n---\n"),
+			prompt,
+		)
+	}
+
+	// 3. Call askModel on Ollama
+	answer, err := askModel(ctx, finalPrompt)
 	if err != nil {
 		return ChatData{}, err
 	}
 
-	// 3. Insert "model reply" into SQLite
+	// 4. Insert "model reply" into SQLite
 	modelChat, err := createChatService(ctx, sessionID, answer, "model")
 	if err != nil {
 		return ChatData{}, err

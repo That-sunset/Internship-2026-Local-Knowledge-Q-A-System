@@ -11,10 +11,6 @@ import (
 
 // --- Record (Session) Managers ---
 
-func getChatManager(ctx context.Context, id string) (model.Record, error) {
-	return gorm.G[model.Record](db.DB).Where("id = ?", id).First(ctx)
-}
-
 func getRecordsManager(ctx context.Context) ([]model.Record, error) {
 	return gorm.G[model.Record](db.DB).Find(ctx)
 }

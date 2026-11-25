@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"strconv"
 
@@ -86,5 +87,47 @@ func deleteHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "deleted",
 		"id":      id,
+	})
+}
+
+func uploadVectorHandler(c *gin.Context) {
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid multipart form"})
+		return
+	}
+
+	files := form.File["files"]
+	if len(files) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no files uploaded"})
+		return
+	}
+
+	totalChunks := 0
+	for _, fileHeader := range files {
+		file, err := fileHeader.Open()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		rawBytes, readErr := io.ReadAll(file)
+		file.Close()
+		if readErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": readErr.Error()})
+			return
+		}
+
+		chunksAdded, err := ingestFileToVectorDB(c.Request.Context(), fileHeader.Filename, rawBytes)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		totalChunks += chunksAdded
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "uploaded",
+		"files":   len(files),
+		"chunks":  totalChunks,
 	})
 }
